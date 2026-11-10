@@ -1,0 +1,28 @@
+### Get tokens for the demo users (any HTTP client; VS Code REST Client / IntelliJ format)
+POST http://localhost:8080/api/v1/auth/token
+Content-Type: application/json
+
+{"username": "erin"}
+
+### Submit a $15,000 request (manager -> finance -> director)
+POST http://localhost:8080/api/v1/requests
+Authorization: Bearer {{erinToken}}
+Idempotency-Key: 6f1c2a9e-laptops-q1
+Content-Type: application/json
+
+{"title": "Laptops for Q1 hires", "category": "hardware", "amount": 15000.00, "currency": "USD"}
+
+### Manager's inbox
+GET http://localhost:8080/api/v1/inbox
+Authorization: Bearer {{miaToken}}
+
+### Approve step 1
+POST http://localhost:8080/api/v1/requests/{{requestId}}/approve
+Authorization: Bearer {{miaToken}}
+Content-Type: application/json
+
+{"comment": "Approved for the Q1 hiring plan"}
+
+### Full history
+GET http://localhost:8080/api/v1/requests/{{requestId}}/audit
+Authorization: Bearer {{erinToken}}

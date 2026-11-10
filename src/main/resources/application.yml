@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: approval-workflow-service
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/workflow}
+    username: ${DATABASE_USER:app}
+    password: ${DATABASE_PASSWORD:app}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate          # Flyway owns the schema; Hibernate only checks it matches
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+  mvc:
+    problemdetails:
+      enabled: true
+  threads:
+    virtual:
+      enabled: true
+
+app:
+  auth:
+    # Demo secret only. Override with APP_AUTH_JWT_SECRET in any shared environment.
+    jwt-secret: ${APP_AUTH_JWT_SECRET:local-dev-secret-change-me-0123456789abcdef}
+    issuer: approval-workflow-service
+    token-ttl: 1h
+    dev-token-endpoint: ${APP_AUTH_DEV_TOKEN_ENDPOINT:true}
+    demo-users:
+      erin: [EMPLOYEE]
+      mia: [EMPLOYEE, MANAGER]
+      max: [EMPLOYEE, MANAGER]
+      fred: [EMPLOYEE, FINANCE]
+      dana: [EMPLOYEE, DIRECTOR]
+      sam: [EMPLOYEE, MANAGER, FINANCE]
+  policy:
+    finance-threshold: 1000.00
+    director-threshold: 10000.00
+  outbox:
+    publisher: ${APP_OUTBOX_PUBLISHER:log}   # log | kafka
+    relay-enabled: true
+    poll-interval-ms: 500
+    topic: approval-events
+    batch-size: 100
+    max-attempts: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
